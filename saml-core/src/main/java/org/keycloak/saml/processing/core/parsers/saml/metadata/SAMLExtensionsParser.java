@@ -16,13 +16,21 @@
  */
 package org.keycloak.saml.processing.core.parsers.saml.metadata;
 
+import static org.keycloak.saml.processing.core.parsers.saml.metadata.SAMLMetadataQNames.ATTR_REGEXP;
+
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 
 import org.keycloak.dom.saml.v2.metadata.ExtensionsType;
+import org.keycloak.dom.saml.v2.metadata.LocalizedNameType;
+import org.keycloak.dom.saml.v2.metadata.LocalizedURIType;
+import org.keycloak.dom.saml.v2.metadata.ScopeType;
+import org.keycloak.dom.saml.v2.metadata.UIInfoType;
 import org.keycloak.saml.common.exceptions.ParsingException;
 import org.keycloak.saml.common.util.StaxParserUtil;
+
 import org.keycloak.saml.processing.core.parsers.saml.mdattr.SAMLEntityAttributesParser;
+import org.keycloak.saml.processing.core.parsers.saml.mdrpi.SAMLRegistrationInfoParser;
 import org.keycloak.saml.processing.core.parsers.saml.mdui.SAMLUIInfoParser;
 
 /**
@@ -48,19 +56,26 @@ public class SAMLExtensionsParser extends AbstractStaxSamlMetadataParser<Extensi
     }
 
     @Override
-    protected void processSubElement(XMLEventReader xmlEventReader, ExtensionsType target, SAMLMetadataQNames element,
-        StartElement elementDetail) throws ParsingException {
+    protected void processSubElement(XMLEventReader xmlEventReader, ExtensionsType target, SAMLMetadataQNames element, StartElement elementDetail) throws ParsingException {
 
         switch (element) {
+            case ENTITY_ATTRIBUTES:
+                target.addExtension(SAMLEntityAttributesParser.getInstance().parse(xmlEventReader));
+                break;
+            case SCOPE:
+                ScopeType scope = new ScopeType(StaxParserUtil.getAttributeValue(elementDetail, ATTR_REGEXP));
+                StaxParserUtil.advance(xmlEventReader);
+                scope.setValue(StaxParserUtil.getElementText(xmlEventReader));
+                target.addExtension(scope);
+                break;
             case UIINFO:
                 target.addExtension(SAMLUIInfoParser.getInstance().parse(xmlEventReader));
                 break;
-            case ENTITY_ATTRIBUTES:
-                target.addExtension(SAMLEntityAttributesParser.getInstance().parse(xmlEventReader));
+            case REGISTRATION_INFO:
+                target.addExtension(SAMLRegistrationInfoParser.getInstance().parse(xmlEventReader));
                 break;
             default:
                 target.addExtension(StaxParserUtil.getDOMElement(xmlEventReader));
         }
-
     }
 }
