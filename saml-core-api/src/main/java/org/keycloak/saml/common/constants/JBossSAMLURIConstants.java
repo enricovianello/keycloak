@@ -65,6 +65,8 @@ public enum JBossSAMLURIConstants {
     HOLDER_OF_KEY("urn:oasis:names:tc:SAML:2.0:cm:holder-of-key"),
 
     METADATA_NSURI("urn:oasis:names:tc:SAML:2.0:metadata"),
+    METADATA_UI_NSURI("urn:oasis:names:tc:SAML:metadata:ui"),
+    SHIBBOLETH_METADATA_NSURI("urn:mace:shibboleth:metadata:1.0"),
     // http://docs.oasis-open.org/security/saml/Post2.0/sstc-metadata-attr-cd-01.pdf
     METADATA_ENTITY_ATTRIBUTES_NSURI("urn:oasis:names:tc:SAML:metadata:attribute"),
 

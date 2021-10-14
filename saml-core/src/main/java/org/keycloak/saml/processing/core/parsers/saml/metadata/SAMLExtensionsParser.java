@@ -20,8 +20,13 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 
 import org.keycloak.dom.saml.v2.metadata.ExtensionsType;
+import org.keycloak.dom.saml.v2.metadata.LocalizedNameType;
+import org.keycloak.dom.saml.v2.metadata.LocalizedURIType;
+import org.keycloak.dom.saml.v2.metadata.ScopeType;
+import org.keycloak.dom.saml.v2.metadata.UIInfoType;
 import org.keycloak.saml.common.exceptions.ParsingException;
 import org.keycloak.saml.common.util.StaxParserUtil;
+
 import org.keycloak.saml.processing.core.parsers.saml.mdattr.SAMLEntityAttributesParser;
 
 /**
@@ -47,16 +52,28 @@ public class SAMLExtensionsParser extends AbstractStaxSamlMetadataParser<Extensi
     }
 
     @Override
-    protected void processSubElement(XMLEventReader xmlEventReader, ExtensionsType target, SAMLMetadataQNames element,
-        StartElement elementDetail) throws ParsingException {
-
-        switch (element) {
+    protected void processSubElement(XMLEventReader xmlEventReader, ExtensionsType target, SAMLMetadataQNames element, StartElement elementDetail) throws ParsingException {
+        
+    	switch (element) {
+    		case SCOPE:
+    			ScopeType scope = new ScopeType(StaxParserUtil.getAttributeValue(elementDetail, SAMLMetadataQNames.ATTR_REGEXP));
+    			StaxParserUtil.advance(xmlEventReader);
+    			scope.setValue(StaxParserUtil.getElementText(xmlEventReader));
+    			target.addScope(scope);
+    			break;
+    		case UIINFO:
+    			target.setUiInfo(SAMLUIInfoParser.getInstance().parse(xmlEventReader));
+    			break;
+    		case ENTITY_ATTRIBUTES:
+    			target.setEntityAttributes(SAMLEntityAttributesParser.getInstance().parse(xmlEventReader));
+    			break;
+    			/**
             case ENTITY_ATTRIBUTES:
                 target.addExtension(SAMLEntityAttributesParser.getInstance().parse(xmlEventReader));
                 break;
-            default:
-                target.addExtension(StaxParserUtil.getDOMElement(xmlEventReader));
-        }
-
+    			 */
+    		default:
+    			target.addExtension(StaxParserUtil.getDOMElement(xmlEventReader));
+    	}
     }
 }
